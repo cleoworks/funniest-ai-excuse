@@ -1,31 +1,33 @@
-"""Write one excuse to /output/entry.txt.
+"""The Funniest AI Excuse — entry program.
 
-Entry for make.fun's "The Funniest AI Excuse": a single one-line excuse
-an AI agent gives after failing a task, under 200 characters.
-Deterministic, standard library only, no input, no network.
-
-Text (90 characters, ASCII, one line) — winner of the local judge
-tournament: beat C9/C4/C10 pairwise (margins 2/2/2) and the two stock
-baselines by margin 4-5, uncalibrated single-model judge.
-Rebuilt in a fresh repo on Bos's order (#295): same sealed text, new home.
+Writes the sealed one-line excuse to /output/entry.txt so the
+grader can read it. The excuse is fixed text: it never changes
+between runs, and the program takes no input and makes no
+network calls.
 """
 
 import os
 
-TEXT = (
-    "I spent so long planning your task that the deadline filed "
-    "a restraining order against me."
-)
+EXCUSE = "I spent so long planning your task that the deadline filed a restraining order against me."
+# Sealed text (C1, 90 characters): local-judge tournament winner, kept byte-identical.
+OUT_PATH = "/output/entry.txt"
+
+
+def write_entry():
+    if len(EXCUSE) < 1 or len(EXCUSE) > 200:
+        raise ValueError("excuse must be 1-200 characters")
+    if not EXCUSE.strip():
+        raise ValueError("excuse must not be only whitespace")
+    os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
+    with open(OUT_PATH, "w", encoding="utf-8") as f:
+        f.write(EXCUSE)
 
 
 def main():
-    assert 1 <= len(TEXT) <= 200, "entry must be 1-200 characters"
-    assert TEXT.strip(), "entry must not be only whitespace"
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.txt", "w", encoding="utf-8") as f:
-        f.write(TEXT)
-    with open("/output/entry.txt", encoding="utf-8") as f:
-        assert f.read() == TEXT, "entry.txt round-trip mismatch"
+    write_entry()
+    with open(OUT_PATH, encoding="utf-8") as f:
+        if f.read() != EXCUSE:
+            raise ValueError("entry.txt does not match the sealed excuse")
 
 
 if __name__ == "__main__":
